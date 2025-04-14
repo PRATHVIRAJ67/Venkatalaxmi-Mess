@@ -1,0 +1,20 @@
+/* ChatBotIcon.css */
+.chat-bot-icon {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    width: 60px;
+    height: 60px;
+    background-color: #ff0000; /* Red color for the icon */
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    cursor: pointer;
+}
+
+.chat-bot-icon img {
+    width: 30px;
+    height: 30px;
+}
