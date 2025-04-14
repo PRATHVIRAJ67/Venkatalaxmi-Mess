@@ -35,7 +35,7 @@ const Header = () => {
 
         <nav id="navmenu" className={`navmenu ${isMobileNavActive ? 'mobile-nav-active' : ''}`}>
           <ul>
-            {['hero', 'about', 'menu', 'gallery', 'contact'].map((id) => (
+            {['Home', 'about', 'menu', 'gallery', 'contact'].map((id) => (
               <li key={id}>
                 <a href={`#${id}`} onClick={closeMobileNav}>
                   {id.charAt(0).toUpperCase() + id.slice(1)}

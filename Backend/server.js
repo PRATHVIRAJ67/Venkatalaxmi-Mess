@@ -151,6 +151,8 @@ function calculateOrderAmount(items, deliveryOption, deliveryFee, discount) {
   
   return total;
 }
+const chatRoutes = require('./routes/chat');
+app.use('/api', chatRoutes);
 
 
 const PORT = process.env.PORT || 5000;
