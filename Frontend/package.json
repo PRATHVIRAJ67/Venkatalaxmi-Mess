@@ -19,6 +19,7 @@
     "dist": "^0.1.2",
     "lucide-react": "^0.487.0",
     "react": "^19.1.0",
+    "react-chatbotify": "^2.0.0-beta.32",
     "react-dom": "^19.1.0",
     "react-icons": "^5.5.0",
     "react-router-dom": "^7.5.0",
