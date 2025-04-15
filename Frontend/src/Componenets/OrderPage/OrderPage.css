@@ -342,37 +342,42 @@
     width: 50px;
     height: 50px;
     background-color: #ce1212;
-    color: white;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 20px;
-    cursor: pointer;
     position: relative;
     box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
     transition: background-color 0.3s ease;
+    padding: 5px; /* slightly reduced */
+    overflow: visible; /* this is important to let badge overflow */
   }
   
-  .cart-toggle:hover {
-    background-color: #b21010;
+  .cart-icon {
+    width: 80%;
+    height: 80%;
+    object-fit: contain;
+    /* color: white; */
   }
   
   .cart-badge {
     position: absolute;
-    top: -5px;
-    right: -5px;
+    top: -8px;
+    right: -8px;
     background-color: #ffc107;
     color: #333;
-    font-size: 12px;
-    width: 20px;
-    height: 20px;
+    font-size: 11px;
+    width: 18px;
+    height: 18px;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
     font-weight: 600;
+    z-index: 10;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
   }
+  
   
   .view-cart-link {
     background-color: #ce1212;
@@ -392,7 +397,7 @@
     background-color: #b21010;
   }
   
-  /* Cart sidebar */
+  /* Cart sidebar
   .cart-sidebar {
     position: fixed;
     top: 0;
@@ -410,7 +415,7 @@
   
   .cart-sidebar.open {
     right: 0;
-  }
+  } */
   
   .cart-header {
     padding: 20px;

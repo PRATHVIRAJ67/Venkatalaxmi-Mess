@@ -1,19 +1,69 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import './OrderPage.css';
 import { AiOutlinePlus, AiOutlineMinus } from 'react-icons/ai';
-
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faLock } from '@fortawesome/free-solid-svg-icons';
 
-
 const OrderPage = () => {
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState('menu-breakfast'); // Default to breakfast
+  const [activeTab, setActiveTab] = useState('menu-breakfast');
   const [cart, setCart] = useState([]);
   const [cartOpen, setCartOpen] = useState(false);
   const [totalAmount, setTotalAmount] = useState(0);
   const [availableCategories, setAvailableCategories] = useState([]);
+  const [currentDayOfWeek, setCurrentDayOfWeek] = useState('');
+    const cartRef = useRef(null);
+    const [position, setPosition] = useState({ top: 80, left: window.innerWidth - 80 });
+    const [dragging, setDragging] = useState(false);
+      const [offset, setOffset] = useState({ x: 0, y: 0 });
+      
+const handleMouseDown = (e) => {
+  setDragging(true);
+  setOffset({
+    x: e.clientX - cartRef.current.getBoundingClientRect().left,
+    y: e.clientY - cartRef.current.getBoundingClientRect().top,
+  });
+};
+
+const handleMouseMove = (e) => {
+  if (!dragging) return;
+  setPosition({
+    top: e.clientY - offset.y,
+    left: e.clientX - offset.x,
+  });
+};
+
+const handleMouseUp = () => setDragging(false);
+
+useEffect(() => {
+  document.addEventListener('mousemove', handleMouseMove);
+  document.addEventListener('mouseup', handleMouseUp);
+  return () => {
+    document.removeEventListener('mousemove', handleMouseMove);
+    document.removeEventListener('mouseup', handleMouseUp);
+  };
+}, [dragging, offset]);
+
+  useEffect(() => {
+    // Get the current day of the week
+    const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+    const now = new Date();
+    setCurrentDayOfWeek(days[now.getDay()]);
+    
+    // Update day of week every day at midnight
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    tomorrow.setHours(0, 0, 0, 0);
+    const timeUntilMidnight = tomorrow - now;
+    
+    const dayTimer = setTimeout(() => {
+      const newDay = new Date();
+      setCurrentDayOfWeek(days[newDay.getDay()]);
+    }, timeUntilMidnight);
+    
+    return () => clearTimeout(dayTimer);
+  }, [currentDayOfWeek]);
 
   const menuCategories = [
     { id: 'menu-starters', title: 'Starters', icon: 'bi-egg-fried' },
@@ -22,39 +72,46 @@ const OrderPage = () => {
     { id: 'menu-dinner', title: 'Dinner', icon: 'bi-palette' }
   ];
 
-  const menuItems = {
-    'menu-starters': [
-      { id: 1, name: "Bruschetta", description: "Toasted bread with fresh tomatoes, garlic, basil, and olive oil", price: 100, img: "menu-item-1.png" },
-      { id: 2, name: "Fried Calamari", description: "Lightly breaded squid served with marinara sauce", price: 200, img: "menu-item-2.png" },
-      { id: 3, name: "Caprese Salad", description: "Fresh mozzarella, tomatoes, and basil with balsamic glaze", price: 300, img: "menu-item-3.png" },
-      { id: 4, name: "Stuffed Mushrooms", description: "Mushroom caps filled with seasoned breadcrumbs and cheese", price: 400, img: "menu-item-4.png" },
-      { id: 5, name: "Shrimp Cocktail", description: "Chilled jumbo shrimp with zesty cocktail sauce", price: 500, img: "menu-item-5.png" },
-      { id: 6, name: "Spinach Artichoke Dip", description: "Creamy dip with spinach, artichokes, and melted cheese", price: 600, img: "menu-item-6.png" },
-    ],
-    'menu-breakfast': [
-      { id: 7, name: "Eggs Benedict", description: "Poached eggs on English muffin with hollandaise sauce", price: 900, img: "menu-item-5.png" },
-      { id: 8, name: "Belgian Waffles", description: "Fluffy waffles topped with fresh berries and maple syrup", price: 700, img: "menu-item-6.png" },
-      { id: 9, name: "Avocado Toast", description: "Whole grain toast with smashed avocado, eggs, and red pepper flakes", price: 800, img: "menu-item-1.png" },
-      { id: 10, name: "Classic Omelette", description: "Three-egg omelette with cheese, ham, and seasonal vegetables", price: 1000, img: "menu-item-2.png" },
-      { id: 11, name: "Pancake Stack", description: "Buttermilk pancakes with butter and pure maple syrup", price: 600, img: "menu-item-3.png" },
-      { id: 12, name: "Breakfast Burrito", description: "Scrambled eggs, sausage, peppers, and cheese in a flour tortilla", price: 1100, img: "menu-item-4.png" },
-    ],
-    'menu-lunch': [
-      { id: 13, name: "Chicken Caesar Wrap", description: "Grilled chicken, romaine, parmesan in a flour tortilla", price: 1100, img: "menu-item-3.png" },
-      { id: 14, name: "Turkey Club Sandwich", description: "Triple-decker with turkey, bacon, lettuce, and tomato", price: 1200, img: "menu-item-4.png" },
-      { id: 15, name: "Mushroom Risotto", description: "Arborio rice slowly cooked with wild mushrooms and parmesan", price: 1300, img: "menu-item-5.png" },
-      { id: 16, name: "Greek Salad", description: "Tomatoes, cucumber, olives, feta, and red onion with oregano", price: 1000, img: "menu-item-6.png" },
-      { id: 17, name: "Fish Tacos", description: "Grilled fish, cabbage slaw, and chipotle aioli in corn tortillas", price: 1400, img: "menu-item-1.png" },
-      { id: 18, name: "Veggie Burger", description: "House-made plant-based patty with all the fixings", price: 1200, img: "menu-item-2.png" },
-    ],
-    'menu-dinner': [
-      { id: 19, name: "Filet Mignon", description: "8oz tenderloin with mashed potatoes and seasonal vegetables", price: 3000, img: "menu-item-2.png" },
-      { id: 20, name: "Grilled Salmon", description: "Wild-caught salmon with lemon butter sauce and asparagus", price: 2200, img: "menu-item-1.png" },
-      { id: 21, name: "Chicken Parmesan", description: "Breaded chicken breast topped with marinara and mozzarella", price: 1700, img: "menu-item-6.png" },
-      { id: 22, name: "Eggplant Lasagna", description: "Layers of eggplant, ricotta, mozzarella, and tomato sauce", price: 1500, img: "menu-item-5.png" },
-      { id: 23, name: "Shrimp Scampi", description: "Jumbo shrimp in garlic butter sauce over linguine", price: 2000, img: "menu-item-4.png" },
-      { id: 24, name: "Prime Rib", description: "Slow-roasted prime rib with au jus and horseradish cream", price: 2700, img: "menu-item-3.png" },
-    ],
+  // Define day-specific menu items
+  const getDaySpecificMenuItems = () => {
+    // Base menu items that will be filtered by day
+    const allMenuItems = {
+      'menu-starters': [
+        { id: 1, name: "Bruschetta", description: "Toasted bread with fresh tomatoes, garlic, basil, and olive oil", price: 100, img: "menu-item-1.png", days: ['Monday', 'Thursday'] },
+        { id: 2, name: "Fried Calamari", description: "Lightly breaded squid served with marinara sauce", price: 200, img: "menu-item-2.png", days: ['Tuesday', 'Friday'] },
+        { id: 3, name: "Caprese Salad", description: "Fresh mozzarella, tomatoes, and basil with balsamic glaze", price: 300, img: "menu-item-3.png", days: ['Wednesday', 'Saturday'] },
+        { id: 4, name: "Stuffed Mushrooms", description: "Mushroom caps filled with seasoned breadcrumbs and cheese", price: 400, img: "menu-item-4.png", days: ['Sunday'] },
+      ],
+      'menu-breakfast': [
+        { id: 7, name: "Eggs Benedict", description: "Poached eggs on English muffin with hollandaise sauce", price: 900, img: "menu-item-5.png", days: ['Tuesday', 'Thursday'] },
+        { id: 8, name: "Belgian Waffles", description: "Fluffy waffles topped with fresh berries and maple syrup", price: 700, img: "menu-item-6.png", days: ['Tuesday', 'Friday'] },
+        { id: 9, name: "Avocado Toast", description: "Whole grain toast with smashed avocado, eggs, and red pepper flakes", price: 800, img: "menu-item-1.png", days: ['Wednesday', 'Saturday'] },
+        { id: 10, name: "Pancake Stack", description: "Buttermilk pancakes with butter and pure maple syrup", price: 600, img: "menu-item-3.png", days: ['Tuesday','Sunday'] },
+      ],
+      'menu-lunch': [
+        
+        { id: 14, name: "Turkey Club Sandwich", description: "Triple-decker with turkey, bacon, lettuce, and tomato", price: 1200, img: "menu-item-4.png", days: ['Tuesday', 'Friday'] },
+        { id: 15, name: "Mushroom Risotto", description: "Arborio rice slowly cooked with wild mushrooms and parmesan", price: 1300, img: "menu-item-5.png", days: ['Wednesday', 'Saturday'] },
+        { id: 16, name: "Greek Salad", description: "Tomatoes, cucumber, olives, feta, and red onion with oregano", price: 1000, img: "menu-item-6.png", days: ['Sunday'] },
+      ],
+      'menu-dinner': [
+        { id: 13, name: "Veg-Noodles", description: "Veg Noodle, romaine, parmesan in a flour tortilla", price: 1100, img: "menu-item-3.png", days: ['Tuesday', 'Thursday'] },
+        { id: 19, name: "Filet Mignon", description: "8oz tenderloin with mashed potatoes and seasonal vegetables", price: 3000, img: "menu-item-2.png", days: ['Tuesday', 'Thursday'] },
+        { id: 20, name: "Grilled Salmon", description: "Wild-caught salmon with lemon butter sauce and asparagus", price: 2200, img: "menu-item-1.png", days: ['Tuesday', 'Friday'] },
+        { id: 21, name: "Rice Bowl", description: "Breaded chicken breast topped with marinara and mozzarella", price: 1700, img: "menu-item-6.png", days: ['Tuesday', 'Saturday'] },
+        { id: 22, name: "Prime Rib", description: "Slow-roasted prime rib with au jus and horseradish cream", price: 2700, img: "menu-item-3.png", days: ['Tuesday'] },
+      ],
+    };
+
+    // Filter the menu items based on the current day
+    const filteredMenuItems = {};
+    Object.keys(allMenuItems).forEach(category => {
+      filteredMenuItems[category] = allMenuItems[category].filter(item => 
+        item.days.includes(currentDayOfWeek)
+      );
+    });
+
+    return filteredMenuItems;
   };
 
   // Function to check available categories based on current time
@@ -207,6 +264,7 @@ const OrderPage = () => {
   };
 
   const timeInfo = getCurrentTimeInfo();
+  const daySpecificMenu = getDaySpecificMenuItems();
 
   return (
     <div className="order-page">
@@ -214,17 +272,24 @@ const OrderPage = () => {
         <i className="bi bi-check-circle"></i> Item added to cart
       </div>
     
-      <div className="cart-section">
-        <div className="cart-toggle" onClick={() => setCartOpen(!cartOpen)}>
-          <i className="bi bi-cart3"></i>
-          {cart.length > 0 && <span className="cart-badge">{cart.length}</span>}
-        </div>
+    <div className="cart-section"ref={cartRef}
+  onMouseDown={handleMouseDown}
+  style={{
+    top: `${position.top}px`,
+    left: `${position.left}px`,
+    position: 'fixed',
+    cursor: 'grab',
+  }}>
+      <div className="cart-toggle" onClick={() => setCartOpen(!cartOpen)}>
+    <img src="/img/shopping-cart.png" alt="Cart" className="cart-icon" />
+    {cart.length > 0 && <span className="cart-badge">{cart.length}</span>}
+      </div>
         <Link to="/cart" className="view-cart-link">
           <i className="bi bi-bag"></i> View Cart
         </Link>
-      </div>
+    </div>
       
-      <div className={`cart-sidebar ${cartOpen ? 'open' : ''}`}>
+      {/* <div className={`cart-sidebar ${cartOpen ? 'open' : ''}`}>
         <div className="cart-header">
           <h3>Your Order</h3>
           <button className="close-cart" onClick={() => setCartOpen(false)}>
@@ -251,16 +316,13 @@ const OrderPage = () => {
                   </div>
                   <div className="cart-item-quantity">
                     <button onClick={() => handleQuantityChange(item.id, 'subtract')}>
-                  <AiOutlineMinus />
-                      </button>
-
-                  <span>{item.quantity}</span>
-
-                <button onClick={() => handleQuantityChange(item.id, 'add')}>
-                   <AiOutlinePlus />
+                      <AiOutlineMinus />
                     </button>
-                    </div>
-
+                    <span>{item.quantity}</span>
+                    <button onClick={() => handleQuantityChange(item.id, 'add')}>
+                      <AiOutlinePlus />
+                    </button>
+                  </div>
                 </div>
               ))}
               
@@ -280,15 +342,16 @@ const OrderPage = () => {
             </>
           )}
         </div>
-      </div>
+      </div> */}
       
       <div className="container">
         <div className="order-header">
-        <button className="new-back-button" onClick={handleBackToMenu}>
+          <button className="new-back-button" onClick={handleBackToMenu}>
             <i className="bi bi-arrow-left"></i> Back 
           </button>
           <h1>Order Your Food</h1>
           <p>Current time: {timeInfo.time} - {timeInfo.message}</p>
+          <p>Today's {currentDayOfWeek} Special Menu</p>
         </div>
         
         <div className="menu-tabs-wrapper" id="menu-tabs" data-aos="fade-up" data-aos-delay="100">
@@ -297,20 +360,20 @@ const OrderPage = () => {
               const isAvailable = availableCategories.includes(category.id);
               return (
                 <li key={category.id} className="menu-tab-item">
-                <button 
-                  className={`menu-tab-button ${activeTab === category.id ? 'active' : ''} ${!isAvailable ? 'disabled' : ''}`}
-                  onClick={() => handleTabChange(category.id)}
-                  disabled={!isAvailable}
-                >
-                  <i className={`bi ${category.icon}`}></i>
-                  <h4>{category.title}</h4>
-                  {!isAvailable && (
-                    <span className="lock-icon">
-                      <FontAwesomeIcon icon={faLock} />
-                    </span>
-                  )}
-                </button>
-              </li>
+                  <button 
+                    className={`menu-tab-button ${activeTab === category.id ? 'active' : ''} ${!isAvailable ? 'disabled' : ''}`}
+                    onClick={() => handleTabChange(category.id)}
+                    disabled={!isAvailable}
+                  >
+                    <i className={`bi ${category.icon}`}></i>
+                    <h4>{category.title}</h4>
+                    {!isAvailable && (
+                      <span className="lock-icon">
+                        <FontAwesomeIcon icon={faLock} />
+                      </span>
+                    )}
+                  </button>
+                </li>
               );
             })}
           </ul>
@@ -324,7 +387,7 @@ const OrderPage = () => {
               id={category.id}
             >
               <div className="menu-header">
-                <p>Our Selection</p>
+                <p>Our {currentDayOfWeek} Selection</p>
                 <h3>{category.title}</h3>
                 {!availableCategories.includes(category.id) && (
                   <div className="menu-unavailable-message">
@@ -335,57 +398,62 @@ const OrderPage = () => {
               
               {availableCategories.includes(category.id) ? (
                 <div className="order-items-grid">
-                  {menuItems[category.id].map((item) => {
-                    const cartItem = cart.find(cartItem => cartItem.id === item.id);
-                    const quantity = cartItem ? cartItem.quantity : 0;
-                    
-                    return (
-                      <div className="order-item" key={item.id}>
-                        <div className="order-item-img-container">
-                          <img
-                            src={`/img/menu/${item.img}`}
-                            className="order-img"
-                            alt={item.name}
-                          />
-                          <div className="order-item-overlay">
-                            <button className="view-details-button">
-                              <i className="bi bi-eye"></i>
-                            </button>
-                          </div>
-                        </div>
-                        <div className="order-item-info">
-                          <h4>{item.name}</h4>
-                          <p className="ingredients">{item.description}</p>
-                          <p className="price">₹{item.price}</p>
-                          
-                          <div className="order-actions">
-                            {quantity > 0 ? (
-             <div className="quantity-selector">
-             <button
-               onClick={() => handleQuantityChange(item.id, 'subtract')}
-               className="quantity-btn"
-             >
-               <AiOutlineMinus style={{ color: 'black' }} />
-             </button>
-             <span className="quantity">{quantity}</span>
-             <button
-               onClick={() => handleQuantityChange(item.id, 'add')}
-               className="quantity-btn"
-             >
-               <AiOutlinePlus style={{ color: 'black' }} />
-             </button>
-           </div>
-            
-                            ) : (
-                              <button className="add-to-cart-button" onClick={() => addToCart(item)}>
-                                <i className="bi bi-cart-plus"></i> Add to Cart
+                  {daySpecificMenu[category.id] && daySpecificMenu[category.id].length > 0 ? (
+                    daySpecificMenu[category.id].map((item) => {
+                      const cartItem = cart.find(cartItem => cartItem.id === item.id);
+                      const quantity = cartItem ? cartItem.quantity : 0;
+                      
+                      return (
+                        <div className="order-item" key={item.id}>
+                          <div className="order-item-img-container">
+                            <img
+                              src={`/img/menu/${item.img}`}
+                              className="order-img"
+                              alt={item.name}
+                            />
+                            <div className="order-item-overlay">
+                              <button className="view-details-button">
+                                <i className="bi bi-eye"></i>
                               </button>
-                            )}
+                            </div>
+                          </div>
+                          <div className="order-item-info">
+                            <h4>{item.name}</h4>
+                            <p className="ingredients">{item.description}</p>
+                            <p className="price">₹{item.price}</p>
+                            
+                            <div className="order-actions">
+                              {quantity > 0 ? (
+                                <div className="quantity-selector">
+                                  <button
+                                    onClick={() => handleQuantityChange(item.id, 'subtract')}
+                                    className="quantity-btn"
+                                  >
+                                    <AiOutlineMinus style={{ color: 'black' }} />
+                                  </button>
+                                  <span className="quantity">{quantity}</span>
+                                  <button
+                                    onClick={() => handleQuantityChange(item.id, 'add')}
+                                    className="quantity-btn"
+                                  >
+                                    <AiOutlinePlus style={{ color: 'black' }} />
+                                  </button>
+                                </div>
+                              ) : (
+                                <button className="add-to-cart-button" onClick={() => addToCart(item)}>
+                                  <i className="bi bi-cart-plus"></i> Add to Cart
+                                </button>
+                              )}
+                            </div>
                           </div>
                         </div>
-                      </div>
-                    );
-                  })}
+                      );
+                    })
+                  ) : (
+                    <div className="no-items-message">
+                      <p>No special menu items available for {currentDayOfWeek} in this category.</p>
+                    </div>
+                  )}
                 </div>
               ) : (
                 <div className="locked-menu-content">
