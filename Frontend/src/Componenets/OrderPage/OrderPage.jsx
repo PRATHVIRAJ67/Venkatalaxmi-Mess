@@ -13,38 +13,63 @@ const OrderPage = () => {
   const [totalAmount, setTotalAmount] = useState(0);
   const [availableCategories, setAvailableCategories] = useState([]);
   const [currentDayOfWeek, setCurrentDayOfWeek] = useState('');
-    const cartRef = useRef(null);
-    const [position, setPosition] = useState({ top: 80, left: window.innerWidth - 80 });
-    const [dragging, setDragging] = useState(false);
-      const [offset, setOffset] = useState({ x: 0, y: 0 });
-      
+  
+  const cartRef = useRef(null);
+const [position, setPosition] = useState({ top: 80, left: window.innerWidth - 100 }); // Start with `left` as per mobile screen size
+const [dragging, setDragging] = useState(false);
+const [offset, setOffset] = useState({ x: 0, y: 0 });
+
 const handleMouseDown = (e) => {
   setDragging(true);
+  const clientX = e.type === "touchstart" ? e.touches[0].clientX : e.clientX;
+  const clientY = e.type === "touchstart" ? e.touches[0].clientY : e.clientY;
   setOffset({
-    x: e.clientX - cartRef.current.getBoundingClientRect().left,
-    y: e.clientY - cartRef.current.getBoundingClientRect().top,
+    x: clientX - cartRef.current.getBoundingClientRect().left,
+    y: clientY - cartRef.current.getBoundingClientRect().top,
   });
 };
 
 const handleMouseMove = (e) => {
   if (!dragging) return;
+
+  const clientX = e.type === "touchmove" ? e.touches[0].clientX : e.clientX;
+  const clientY = e.type === "touchmove" ? e.touches[0].clientY : e.clientY;
+
+  const newLeft = clientX - offset.x;
+  const newTop = clientY - offset.y;
+
   setPosition({
-    top: e.clientY - offset.y,
-    left: e.clientX - offset.x,
+    top: Math.min(Math.max(newTop, 0), window.innerHeight - cartRef.current.offsetHeight),
+    left: Math.min(Math.max(newLeft, 0), window.innerWidth - cartRef.current.offsetWidth),
   });
 };
 
 const handleMouseUp = () => setDragging(false);
 
 useEffect(() => {
-  document.addEventListener('mousemove', handleMouseMove);
-  document.addEventListener('mouseup', handleMouseUp);
+  const mouseDownEvent = (e) => handleMouseDown(e);
+  const mouseMoveEvent = (e) => handleMouseMove(e);
+  const mouseUpEvent = () => handleMouseUp();
+
+  document.addEventListener('mousedown', mouseDownEvent);
+  document.addEventListener('mousemove', mouseMoveEvent);
+  document.addEventListener('mouseup', mouseUpEvent);
+
+  // Touch events for mobile
+  document.addEventListener('touchstart', mouseDownEvent);
+  document.addEventListener('touchmove', mouseMoveEvent);
+  document.addEventListener('touchend', mouseUpEvent);
+
   return () => {
-    document.removeEventListener('mousemove', handleMouseMove);
-    document.removeEventListener('mouseup', handleMouseUp);
+    document.removeEventListener('mousedown', mouseDownEvent);
+    document.removeEventListener('mousemove', mouseMoveEvent);
+    document.removeEventListener('mouseup', mouseUpEvent);
+
+    document.removeEventListener('touchstart', mouseDownEvent);
+    document.removeEventListener('touchmove', mouseMoveEvent);
+    document.removeEventListener('touchend', mouseUpEvent);
   };
 }, [dragging, offset]);
-
   useEffect(() => {
     // Get the current day of the week
     const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
