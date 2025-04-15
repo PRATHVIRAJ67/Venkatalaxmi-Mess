@@ -329,8 +329,6 @@
   /* Cart toggle button */
   .cart-section {
     position: fixed;
-    top: 80px;
-    right: 20px;
     z-index: 100;
     display: flex;
     flex-direction: column;

@@ -15,61 +15,82 @@ const OrderPage = () => {
   const [currentDayOfWeek, setCurrentDayOfWeek] = useState('');
   
   const cartRef = useRef(null);
-const [position, setPosition] = useState({ top: 80, left: window.innerWidth - 100 }); // Start with `left` as per mobile screen size
-const [dragging, setDragging] = useState(false);
-const [offset, setOffset] = useState({ x: 0, y: 0 });
+  const [position, setPosition] = useState({ top: 80, left: 0 });
+  const [dragging, setDragging] = useState(false);
+  const [offset, setOffset] = useState({ x: 0, y: 0 });
 
-const handleMouseDown = (e) => {
-  setDragging(true);
-  const clientX = e.type === "touchstart" ? e.touches[0].clientX : e.clientX;
-  const clientY = e.type === "touchstart" ? e.touches[0].clientY : e.clientY;
-  setOffset({
-    x: clientX - cartRef.current.getBoundingClientRect().left,
-    y: clientY - cartRef.current.getBoundingClientRect().top,
-  });
-};
+  useEffect(() => {
+    // Set responsive initial position once cartRef is available
+    const setInitialPosition = () => {
+      if (cartRef.current) {
+        const isMobile = window.innerWidth <= 768;
+        const cartWidth = cartRef.current.offsetWidth;
+        const cartHeight = cartRef.current.offsetHeight;
 
-const handleMouseMove = (e) => {
-  if (!dragging) return;
+        const defaultLeft = isMobile
+          ? window.innerWidth - cartWidth - 20
+          : window.innerWidth - cartWidth - 40;
 
-  const clientX = e.type === "touchmove" ? e.touches[0].clientX : e.clientX;
-  const clientY = e.type === "touchmove" ? e.touches[0].clientY : e.clientY;
+        const defaultTop = 80;
 
-  const newLeft = clientX - offset.x;
-  const newTop = clientY - offset.y;
+        setPosition({
+          top: Math.min(defaultTop, window.innerHeight - cartHeight),
+          left: Math.min(defaultLeft, window.innerWidth - cartWidth),
+        });
+      }
+    };
 
-  setPosition({
-    top: Math.min(Math.max(newTop, 0), window.innerHeight - cartRef.current.offsetHeight),
-    left: Math.min(Math.max(newLeft, 0), window.innerWidth - cartRef.current.offsetWidth),
-  });
-};
+    setInitialPosition();
+    window.addEventListener('resize', setInitialPosition); // optional: handle resize
 
-const handleMouseUp = () => setDragging(false);
+    return () => {
+      window.removeEventListener('resize', setInitialPosition);
+    };
+  }, []);
 
-useEffect(() => {
-  const mouseDownEvent = (e) => handleMouseDown(e);
-  const mouseMoveEvent = (e) => handleMouseMove(e);
-  const mouseUpEvent = () => handleMouseUp();
+  const handleDragStart = (e) => {
+    const clientX = e.type === 'touchstart' ? e.touches[0].clientX : e.clientX;
+    const clientY = e.type === 'touchstart' ? e.touches[0].clientY : e.clientY;
 
-  document.addEventListener('mousedown', mouseDownEvent);
-  document.addEventListener('mousemove', mouseMoveEvent);
-  document.addEventListener('mouseup', mouseUpEvent);
-
-  // Touch events for mobile
-  document.addEventListener('touchstart', mouseDownEvent);
-  document.addEventListener('touchmove', mouseMoveEvent);
-  document.addEventListener('touchend', mouseUpEvent);
-
-  return () => {
-    document.removeEventListener('mousedown', mouseDownEvent);
-    document.removeEventListener('mousemove', mouseMoveEvent);
-    document.removeEventListener('mouseup', mouseUpEvent);
-
-    document.removeEventListener('touchstart', mouseDownEvent);
-    document.removeEventListener('touchmove', mouseMoveEvent);
-    document.removeEventListener('touchend', mouseUpEvent);
+    setDragging(true);
+    setOffset({
+      x: clientX - cartRef.current.getBoundingClientRect().left,
+      y: clientY - cartRef.current.getBoundingClientRect().top,
+    });
   };
-}, [dragging, offset]);
+
+  const handleDragMove = (e) => {
+    if (!dragging) return;
+
+    const clientX = e.type === 'touchmove' ? e.touches[0].clientX : e.clientX;
+    const clientY = e.type === 'touchmove' ? e.touches[0].clientY : e.clientY;
+
+    const newLeft = clientX - offset.x;
+    const newTop = clientY - offset.y;
+
+    setPosition({
+      top: Math.min(Math.max(newTop, 0), window.innerHeight - cartRef.current.offsetHeight),
+      left: Math.min(Math.max(newLeft, 0), window.innerWidth - cartRef.current.offsetWidth),
+    });
+  };
+
+  const handleDragEnd = () => setDragging(false);
+
+  useEffect(() => {
+    document.addEventListener('mousemove', handleDragMove);
+    document.addEventListener('mouseup', handleDragEnd);
+    document.addEventListener('touchmove', handleDragMove);
+    document.addEventListener('touchend', handleDragEnd);
+
+    return () => {
+      document.removeEventListener('mousemove', handleDragMove);
+      document.removeEventListener('mouseup', handleDragEnd);
+      document.removeEventListener('touchmove', handleDragMove);
+      document.removeEventListener('touchend', handleDragEnd);
+    };
+  }, [dragging, offset]);
+
+
   useEffect(() => {
     // Get the current day of the week
     const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
@@ -297,14 +318,16 @@ useEffect(() => {
         <i className="bi bi-check-circle"></i> Item added to cart
       </div>
     
-    <div className="cart-section"ref={cartRef}
-  onMouseDown={handleMouseDown}
-  style={{
-    top: `${position.top}px`,
-    left: `${position.left}px`,
-    position: 'fixed',
-    cursor: 'grab',
-  }}>
+    <div  className="cart-section"
+      ref={cartRef}
+      onMouseDown={handleDragStart}
+      onTouchStart={handleDragStart}
+      style={{
+        top: `${position.top}px`,
+        left: `${position.left}px`,
+        position: 'fixed',
+        cursor: 'grab',
+      }}>
       <div className="cart-toggle" onClick={() => setCartOpen(!cartOpen)}>
     <img src="/img/shopping-cart.png" alt="Cart" className="cart-icon" />
     {cart.length > 0 && <span className="cart-badge">{cart.length}</span>}
