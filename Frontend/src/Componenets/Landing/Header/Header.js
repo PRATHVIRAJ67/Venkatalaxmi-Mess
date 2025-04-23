@@ -30,7 +30,7 @@ const Header = () => {
       <div className="container position-relative d-flex align-items-center justify-content-between">
 
         <a href="index.html" className="logo d-flex align-items-center me-auto me-xl-0">
-          <img src="/img/Venkatalakshmi Logo.png" alt="Venkatalakshmi Logo" />
+          <img src="\img\test.png" alt="Venkatalakshmi Logo" />
         </a>
 
         <nav id="navmenu" className={`navmenu ${isMobileNavActive ? 'mobile-nav-active' : ''}`}>

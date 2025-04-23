@@ -6,6 +6,8 @@ import Footer from './Componenets/Landing/Footer/Footer';
 import Order from './Componenets/OrderPage/OrderPage';
 import CartPage from './Componenets/Cart/Cart';
 import ChatBotIcon from './Componenets/Landing/Chatbot/ChatBotIcon'; 
+import UserForm from './Componenets/form/ResponsiveForm';
+import OrderSuccess from './Componenets/order-sucess/ordersucess';
 function MainLayout({ children }) {
   return (
     <>
@@ -42,10 +44,26 @@ function App() {
           }
         />
          <Route
+          path="/form"
+          element={
+          
+              <UserForm />
+          
+          }
+        />
+         <Route
           path="/cart"
           element={
           
               <CartPage />
+          
+          }
+        />
+         <Route
+          path="/ordersucess"
+          element={
+          
+              <OrderSuccess/>
           
           }
         />

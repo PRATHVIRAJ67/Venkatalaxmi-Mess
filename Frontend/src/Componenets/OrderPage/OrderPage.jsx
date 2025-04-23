@@ -123,13 +123,13 @@ const OrderPage = () => {
     // Base menu items that will be filtered by day
     const allMenuItems = {
       'menu-starters': [
-        { id: 1, name: "Bruschetta", description: "Toasted bread with fresh tomatoes, garlic, basil, and olive oil", price: 100, img: "menu-item-1.png", days: ['Monday', 'Thursday'] },
+        { id: 1, name: "Bruschetta", description: "Toasted bread with fresh tomatoes, garlic, basil, and olive oil", price: 100, img: "menu-item-1.png", days: ['Wednesday', 'Thursday'] },
         { id: 2, name: "Fried Calamari", description: "Lightly breaded squid served with marinara sauce", price: 200, img: "menu-item-2.png", days: ['Tuesday', 'Friday'] },
         { id: 3, name: "Caprese Salad", description: "Fresh mozzarella, tomatoes, and basil with balsamic glaze", price: 300, img: "menu-item-3.png", days: ['Wednesday', 'Saturday'] },
         { id: 4, name: "Stuffed Mushrooms", description: "Mushroom caps filled with seasoned breadcrumbs and cheese", price: 400, img: "menu-item-4.png", days: ['Sunday'] },
       ],
       'menu-breakfast': [
-        { id: 7, name: "Eggs Benedict", description: "Poached eggs on English muffin with hollandaise sauce", price: 900, img: "menu-item-5.png", days: ['Tuesday', 'Thursday'] },
+        { id: 7, name: "IceCream", description: "Poached eggs on English muffin with hollandaise sauce", price: 900, img: "menu-item-5.png", days: ['Tuesday', 'Thursday'] },
         { id: 8, name: "Belgian Waffles", description: "Fluffy waffles topped with fresh berries and maple syrup", price: 700, img: "menu-item-6.png", days: ['Tuesday', 'Friday'] },
         { id: 9, name: "Avocado Toast", description: "Whole grain toast with smashed avocado, eggs, and red pepper flakes", price: 800, img: "menu-item-1.png", days: ['Wednesday', 'Saturday'] },
         { id: 10, name: "Pancake Stack", description: "Buttermilk pancakes with butter and pure maple syrup", price: 600, img: "menu-item-3.png", days: ['Tuesday','Sunday'] },
@@ -137,13 +137,13 @@ const OrderPage = () => {
       'menu-lunch': [
         
         { id: 14, name: "Turkey Club Sandwich", description: "Triple-decker with turkey, bacon, lettuce, and tomato", price: 1200, img: "menu-item-4.png", days: ['Tuesday', 'Friday'] },
-        { id: 15, name: "Mushroom Risotto", description: "Arborio rice slowly cooked with wild mushrooms and parmesan", price: 1300, img: "menu-item-5.png", days: ['Wednesday', 'Saturday'] },
-        { id: 16, name: "Greek Salad", description: "Tomatoes, cucumber, olives, feta, and red onion with oregano", price: 1000, img: "menu-item-6.png", days: ['Sunday'] },
+        { id: 15, name: "Panner Manchuri", description: "Arborio rice slowly cooked with wild mushrooms and parmesan", price: 10, img: "menu-item-1.png", days: ['Monday', 'Sunday'] },
+        { id: 16, name: "Idli Vada", description: "Tomatoes, cucumber, olives, feta, and red onion with oregano", price: 35, img: "idlivada.png", days: ['Sunday'] },
       ],
       'menu-dinner': [
-        { id: 13, name: "Veg-Noodles", description: "Veg Noodle, romaine, parmesan in a flour tortilla", price: 1100, img: "menu-item-3.png", days: ['Tuesday', 'Thursday'] },
-        { id: 19, name: "Filet Mignon", description: "8oz tenderloin with mashed potatoes and seasonal vegetables", price: 3000, img: "menu-item-2.png", days: ['Tuesday', 'Thursday'] },
-        { id: 20, name: "Grilled Salmon", description: "Wild-caught salmon with lemon butter sauce and asparagus", price: 2200, img: "menu-item-1.png", days: ['Tuesday', 'Friday'] },
+        { id: 13, name: "Veg-Noodles", description: "Veg Noodle, romaine, parmesan in a flour tortilla", price: 10, img: "menu-item-3.png", days: ['Wednesday', 'Sunday'] },
+        { id: 19, name: "Filet Mignon", description: "8oz tenderloin with mashed potatoes and seasonal vegetables", price: 3000, img: "menu-item-2.png", days: ['Wednesday', 'Thursday'] },
+        { id: 20, name: "Grilled Salmon", description: "Wild-caught salmon with lemon butter sauce and asparagus", price: 2200, img: "menu-item-1.png", days: ['Wednesday', 'Friday'] },
         { id: 21, name: "Rice Bowl", description: "Breaded chicken breast topped with marinara and mozzarella", price: 1700, img: "menu-item-6.png", days: ['Tuesday', 'Saturday'] },
         { id: 22, name: "Prime Rib", description: "Slow-roasted prime rib with au jus and horseradish cream", price: 2700, img: "menu-item-3.png", days: ['Tuesday'] },
       ],
@@ -337,60 +337,7 @@ const OrderPage = () => {
         </Link>
     </div>
       
-      {/* <div className={`cart-sidebar ${cartOpen ? 'open' : ''}`}>
-        <div className="cart-header">
-          <h3>Your Order</h3>
-          <button className="close-cart" onClick={() => setCartOpen(false)}>
-            <i className="bi bi-x-lg"></i>
-          </button>
-        </div>
-        
-        <div className="cart-items">
-          {cart.length === 0 ? (
-            <div className="empty-cart">
-              <i className="bi bi-cart-x"></i>
-              <p>Your cart is empty</p>
-            </div>
-          ) : (
-            <>
-              {cart.map(item => (
-                <div className="cart-item" key={item.id}>
-                  <div className="cart-item-img">
-                    <img src={`/img/menu/${item.img}`} alt={item.name} />
-                  </div>
-                  <div className="cart-item-details">
-                    <h4>{item.name}</h4>
-                    <div className="cart-item-price">₹{item.price} × {item.quantity}</div>
-                  </div>
-                  <div className="cart-item-quantity">
-                    <button onClick={() => handleQuantityChange(item.id, 'subtract')}>
-                      <AiOutlineMinus />
-                    </button>
-                    <span>{item.quantity}</span>
-                    <button onClick={() => handleQuantityChange(item.id, 'add')}>
-                      <AiOutlinePlus />
-                    </button>
-                  </div>
-                </div>
-              ))}
-              
-              <div className="cart-total">
-                <div className="total-label">Total Amount:</div>
-                <div className="total-amount">₹{totalAmount}</div>
-              </div>
-              
-              <div className="cart-actions">
-                <button className="checkout-button" onClick={handleCheckout}>
-                  Proceed to Checkout
-                </button>
-                <Link to="/cart" className="view-full-cart-button" onClick={() => setCartOpen(false)}>
-                  View Full Cart
-                </Link>
-              </div>
-            </>
-          )}
-        </div>
-      </div> */}
+     
       
       <div className="container">
         <div className="order-header">

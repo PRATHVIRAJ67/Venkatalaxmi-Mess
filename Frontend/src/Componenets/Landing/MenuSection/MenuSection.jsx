@@ -8,36 +8,39 @@ const MenuSection = () => {
 
   
   const menuCategories = [
-    { id: 'menu-starters', title: 'Starters', icon: 'bi-egg-fried' },
-    { id: 'menu-breakfast', title: 'Breakfast', icon: 'bi-cup-hot' },
+    { id: 'menu-starters', title: 'Breakfast', icon: 'bi-cup-hot' },
+  
     { id: 'menu-lunch', title: 'Lunch', icon: 'bi-cup-straw' },
+    { id: 'menu-breakfast', title: 'Breakfast', icon: 'bi-egg-fried' },
     { id: 'menu-dinner', title: 'Dinner', icon: 'bi-palette' }
   ];
 
   const menuItems = {
     'menu-starters': [
-      { name: "Bruschetta", description: "Toasted bread with fresh tomatoes, garlic, basil, and olive oil", price: "₹100", img: "menu-item-1.png" },
-      { name: "Fried Calamari", description: "Lightly breaded squid served with marinara sauce", price: "₹200", img: "menu-item-2.png" },
-      { name: "Caprese Salad", description: "Fresh mozzarella, tomatoes, and basil with balsamic glaze", price: "₹300", img: "menu-item-3.png" },
-      { name: "Stuffed Mushrooms", description: "Mushroom caps filled with seasoned breadcrumbs and cheese", price: "₹400", img: "menu-item-4.png" },
-      { name: "Shrimp Cocktail", description: "Chilled jumbo shrimp with zesty cocktail sauce", price: "₹500", img: "menu-item-5.png" },
-      { name: "Spinach Artichoke Dip", description: "Creamy dip with spinach, artichokes, and melted cheese", price: "₹600", img: "menu-item-6.png" },
+      { name: "Idli Vada", description: "Toasted bread with fresh tomatoes, garlic, basil, and olive oil", price: "₹35", img: "idlivada.png" },
+      { name: "Dosa", description: "Lightly breaded squid served with marinara sauce", price: "₹35", img: "Dosa.jpg" },
+      { name: "Pulav", description: "Fresh mozzarella, tomatoes, and basil with balsamic glaze", price: "₹35", img: "pulav.jpg" },
+      { name: "Poori", description: "Mushroom caps filled with seasoned breadcrumbs and cheese", price: "₹30", img: "pori.jpg" },
+      { name: "Upitu", description: "Chilled jumbo shrimp with zesty cocktail sauce", price: "₹40", img: "upitu.jpg" },
+      { name: "Setdosa", description: "Creamy dip with spinach, artichokes, and melted cheese", price: "₹40", img: "setdosa.jpg" },
     ],
-    'menu-breakfast': [
+    
+    'menu-lunch': [
+      { name: "NorthIndianThali", description: "North indian Thali, romaine, parmesan in a flour tortilla", price: "₹100", img: "northindianthali.png" },
+      { name: "SouthindianThali", description: "Triple-decker with turkey, bacon, lettuce, and tomato", price: "₹120", img: "southindianthali.jpg" },
+      { name: "Gobi Rice", description: "Tomatoes, cucumber, olives, feta, and red onion with oregano", price: "₹70", img: "gobi-rice.jpg" },
+    
+
+      { name: "Panner -manchuri", description: "Grilled fish, cabbage slaw, and chipotle aioli in corn tortillas", price: "₹80", img: "menu-item-1.png" },
+      { name: "Tomato-Saru", description: "Arborio rice slowly cooked with wild mushrooms and parmesan", price: "₹20", img: "Tomato-saru.jpg" },
+      { name: "Veggie Burger", description: "House-made plant-based patty with all the fixings", price: "₹1200", img: "menu-item-2.png" },
+    ],'menu-breakfast': [
       { name: "Eggs Benedict", description: "Poached eggs on English muffin with hollandaise sauce", price: "₹900", img: "menu-item-5.png" },
       { name: "Belgian Waffles", description: "Fluffy waffles topped with fresh berries and maple syrup", price: "₹700", img: "menu-item-6.png" },
       { name: "Avocado Toast", description: "Whole grain toast with smashed avocado, eggs, and red pepper flakes", price: "₹800", img: "menu-item-1.png" },
       { name: "Classic Omelette", description: "Three-egg omelette with cheese, ham, and seasonal vegetables", price: "₹1000", img: "menu-item-2.png" },
       { name: "Pancake Stack", description: "Buttermilk pancakes with butter and pure maple syrup", price: "₹600", img: "menu-item-3.png" },
       { name: "Breakfast Burrito", description: "Scrambled eggs, sausage, peppers, and cheese in a flour tortilla", price: "₹1100", img: "menu-item-4.png" },
-    ],
-    'menu-lunch': [
-      { name: "Chicken Caesar Wrap", description: "Grilled chicken, romaine, parmesan in a flour tortilla", price: "₹1100", img: "menu-item-3.png" },
-      { name: "Turkey Club Sandwich", description: "Triple-decker with turkey, bacon, lettuce, and tomato", price: "₹1200", img: "menu-item-4.png" },
-      { name: "Mushroom Risotto", description: "Arborio rice slowly cooked with wild mushrooms and parmesan", price: "₹1300", img: "menu-item-5.png" },
-      { name: "Greek Salad", description: "Tomatoes, cucumber, olives, feta, and red onion with oregano", price: "₹1000", img: "menu-item-6.png" },
-      { name: "Fish Tacos", description: "Grilled fish, cabbage slaw, and chipotle aioli in corn tortillas", price: "₹1400", img: "menu-item-1.png" },
-      { name: "Veggie Burger", description: "House-made plant-based patty with all the fixings", price: "₹1200", img: "menu-item-2.png" },
     ],
     'menu-dinner': [
       { name: "Filet Mignon", description: "8oz tenderloin with mashed potatoes and seasonal vegetables", price: "₹3000", img: "menu-item-2.png" },
