@@ -4,6 +4,12 @@ import './OrderPage.css';
 import { AiOutlinePlus, AiOutlineMinus } from 'react-icons/ai';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faLock } from '@fortawesome/free-solid-svg-icons';
+import { createClient } from '@supabase/supabase-js';
+
+// Initialize Supabase client - replace with your actual URL and anon key
+const supabaseUrl = 'https://azzfgtymixbbseinydfo.supabase.co';
+const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImF6emZndHltaXhiYnNlaW55ZGZvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDUzODY4NzgsImV4cCI6MjA2MDk2Mjg3OH0.klA9RjID-wT3FIrFaU1VLfhHl0RVKXg7CX3lcoIWf08';
+const supabase = createClient(supabaseUrl, supabaseKey);
 
 const OrderPage = () => {
   const navigate = useNavigate();
@@ -13,11 +19,63 @@ const OrderPage = () => {
   const [totalAmount, setTotalAmount] = useState(0);
   const [availableCategories, setAvailableCategories] = useState([]);
   const [currentDayOfWeek, setCurrentDayOfWeek] = useState('');
+  const [menuItemsFromDB, setMenuItemsFromDB] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
   
   const cartRef = useRef(null);
   const [position, setPosition] = useState({ top: 80, left: 0 });
   const [dragging, setDragging] = useState(false);
   const [offset, setOffset] = useState({ x: 0, y: 0 });
+
+  // Fetch menu items from Supabase
+  useEffect(() => {
+    const fetchMenuItems = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('menu_items')
+          .select('*');
+          
+        if (error) {
+          console.error('Error fetching menu items:', error);
+          return;
+        }
+        
+        if (data) {
+          // Process the fetched data to handle the days field (stored as JSONB)
+          const processedData = data.map(item => ({
+            ...item,
+            days: Array.isArray(item.days) ? item.days : JSON.parse(item.days || '[]')
+          }));
+          
+          setMenuItemsFromDB(processedData);
+        }
+      } catch (error) {
+        console.error('Error processing menu items:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    
+    fetchMenuItems();
+    
+    // Optional: Set up a subscription to listen for changes
+    const subscription = supabase
+      .channel('table-db-changes')
+      .on('postgres_changes', { 
+        event: '*', 
+        schema: 'public', 
+        table: 'menu_items' 
+      }, payload => {
+        console.log('Database change detected:', payload);
+        // Refresh data when changes are detected
+        fetchMenuItems();
+      })
+      .subscribe();
+      
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, []);
 
   useEffect(() => {
     // Set responsive initial position once cartRef is available
@@ -41,7 +99,7 @@ const OrderPage = () => {
     };
 
     setInitialPosition();
-    window.addEventListener('resize', setInitialPosition); // optional: handle resize
+    window.addEventListener('resize', setInitialPosition);
 
     return () => {
       window.removeEventListener('resize', setInitialPosition);
@@ -90,7 +148,6 @@ const OrderPage = () => {
     };
   }, [dragging, offset]);
 
-
   useEffect(() => {
     // Get the current day of the week
     const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
@@ -118,7 +175,7 @@ const OrderPage = () => {
     { id: 'menu-dinner', title: 'Dinner', icon: 'bi-palette' }
   ];
 
-  // Define day-specific menu items
+  // Define day-specific menu items - now merges DB items with hardcoded items
   const getDaySpecificMenuItems = () => {
     // Base menu items that will be filtered by day
     const allMenuItems = {
@@ -135,7 +192,6 @@ const OrderPage = () => {
         { id: 10, name: "Pancake Stack", description: "Buttermilk pancakes with butter and pure maple syrup", price: 600, img: "menu-item-3.png", days: ['Tuesday','Sunday'] },
       ],
       'menu-lunch': [
-        
         { id: 14, name: "Turkey Club Sandwich", description: "Triple-decker with turkey, bacon, lettuce, and tomato", price: 1200, img: "menu-item-4.png", days: ['Tuesday', 'Friday'] },
         { id: 15, name: "Panner Manchuri", description: "Arborio rice slowly cooked with wild mushrooms and parmesan", price: 10, img: "menu-item-1.png", days: ['Monday', 'Sunday'] },
         { id: 16, name: "Idli Vada", description: "Tomatoes, cucumber, olives, feta, and red onion with oregano", price: 35, img: "idlivada.png", days: ['Sunday'] },
@@ -149,11 +205,38 @@ const OrderPage = () => {
       ],
     };
 
+    // Merge DB items with hardcoded items
+    menuItemsFromDB.forEach(dbItem => {
+      // Determine which category to add this to
+      const category = dbItem.category;  // This should match your schema: menu-breakfast, menu-lunch, etc.
+      
+      if (allMenuItems[category]) {
+        // Check if this item already exists in our hardcoded items (by id)
+        const existingItemIndex = allMenuItems[category].findIndex(item => item.id === dbItem.id);
+        
+        if (existingItemIndex !== -1) {
+          // Update existing item
+          allMenuItems[category][existingItemIndex] = {
+            ...dbItem,
+            // Make sure days is an array
+            days: Array.isArray(dbItem.days) ? dbItem.days : JSON.parse(dbItem.days || '[]')
+          };
+        } else {
+          // Add new item
+          allMenuItems[category].push({
+            ...dbItem,
+            // Make sure days is an array
+            days: Array.isArray(dbItem.days) ? dbItem.days : JSON.parse(dbItem.days || '[]')
+          });
+        }
+      }
+    });
+
     // Filter the menu items based on the current day
     const filteredMenuItems = {};
     Object.keys(allMenuItems).forEach(category => {
       filteredMenuItems[category] = allMenuItems[category].filter(item => 
-        item.days.includes(currentDayOfWeek)
+        item.days && item.days.includes(currentDayOfWeek)
       );
     });
 
@@ -318,26 +401,24 @@ const OrderPage = () => {
         <i className="bi bi-check-circle"></i> Item added to cart
       </div>
     
-    <div  className="cart-section"
-      ref={cartRef}
-      onMouseDown={handleDragStart}
-      onTouchStart={handleDragStart}
-      style={{
-        top: `${position.top}px`,
-        left: `${position.left}px`,
-        position: 'fixed',
-        cursor: 'grab',
-      }}>
-      <div className="cart-toggle" onClick={() => setCartOpen(!cartOpen)}>
-    <img src="/img/shopping-cart.png" alt="Cart" className="cart-icon" />
-    {cart.length > 0 && <span className="cart-badge">{cart.length}</span>}
-      </div>
+      <div className="cart-section"
+        ref={cartRef}
+        onMouseDown={handleDragStart}
+        onTouchStart={handleDragStart}
+        style={{
+          top: `${position.top}px`,
+          left: `${position.left}px`,
+          position: 'fixed',
+          cursor: 'grab',
+        }}>
+        <div className="cart-toggle" onClick={() => setCartOpen(!cartOpen)}>
+          <img src="/img/shopping-cart.png" alt="Cart" className="cart-icon" />
+          {cart.length > 0 && <span className="cart-badge">{cart.length}</span>}
+        </div>
         <Link to="/cart" className="view-cart-link">
           <i className="bi bi-bag"></i> View Cart
         </Link>
-    </div>
-      
-     
+      </div>
       
       <div className="container">
         <div className="order-header">
@@ -375,97 +456,104 @@ const OrderPage = () => {
         </div>
         
         <div className="menu-content" data-aos="fade-up" data-aos-delay="200">
-          {menuCategories.map((category) => (
-            <div 
-              key={category.id}
-              className={`menu-tab-content ${activeTab === category.id ? 'active' : ''}`}
-              id={category.id}
-            >
-              <div className="menu-header">
-                <p>Our {currentDayOfWeek} Selection</p>
-                <h3>{category.title}</h3>
-                {!availableCategories.includes(category.id) && (
-                  <div className="menu-unavailable-message">
-                    <i className="bi bi-clock"></i> This menu is not available at this time
-                  </div>
-                )}
-              </div>
-              
-              {availableCategories.includes(category.id) ? (
-                <div className="order-items-grid">
-                  {daySpecificMenu[category.id] && daySpecificMenu[category.id].length > 0 ? (
-                    daySpecificMenu[category.id].map((item) => {
-                      const cartItem = cart.find(cartItem => cartItem.id === item.id);
-                      const quantity = cartItem ? cartItem.quantity : 0;
-                      
-                      return (
-                        <div className="order-item" key={item.id}>
-                          <div className="order-item-img-container">
-                            <img
-                              src={`/img/menu/${item.img}`}
-                              className="order-img"
-                              alt={item.name}
-                            />
-                            <div className="order-item-overlay">
-                              <button className="view-details-button">
-                                <i className="bi bi-eye"></i>
-                              </button>
-                            </div>
-                          </div>
-                          <div className="order-item-info">
-                            <h4>{item.name}</h4>
-                            <p className="ingredients">{item.description}</p>
-                            <p className="price">₹{item.price}</p>
-                            
-                            <div className="order-actions">
-                              {quantity > 0 ? (
-                                <div className="quantity-selector">
-                                  <button
-                                    onClick={() => handleQuantityChange(item.id, 'subtract')}
-                                    className="quantity-btn"
-                                  >
-                                    <AiOutlineMinus style={{ color: 'black' }} />
-                                  </button>
-                                  <span className="quantity">{quantity}</span>
-                                  <button
-                                    onClick={() => handleQuantityChange(item.id, 'add')}
-                                    className="quantity-btn"
-                                  >
-                                    <AiOutlinePlus style={{ color: 'black' }} />
-                                  </button>
-                                </div>
-                              ) : (
-                                <button className="add-to-cart-button" onClick={() => addToCart(item)}>
-                                  <i className="bi bi-cart-plus"></i> Add to Cart
-                                </button>
-                              )}
-                            </div>
-                          </div>
-                        </div>
-                      );
-                    })
-                  ) : (
-                    <div className="no-items-message">
-                      <p>No special menu items available for {currentDayOfWeek} in this category.</p>
+          {isLoading ? (
+            <div className="loading-spinner">
+              <p>Loading menu items...</p>
+              {/* Add your spinner component here if you have one */}
+            </div>
+          ) : (
+            menuCategories.map((category) => (
+              <div 
+                key={category.id}
+                className={`menu-tab-content ${activeTab === category.id ? 'active' : ''}`}
+                id={category.id}
+              >
+                <div className="menu-header">
+                  <p>Our {currentDayOfWeek} Selection</p>
+                  <h3>{category.title}</h3>
+                  {!availableCategories.includes(category.id) && (
+                    <div className="menu-unavailable-message">
+                      <i className="bi bi-clock"></i> This menu is not available at this time
                     </div>
                   )}
                 </div>
-              ) : (
-                <div className="locked-menu-content">
-                  <div className="locked-menu-message">
-                    <i className="bi bi-lock-fill"></i>
-                    <h3>This menu is currently unavailable</h3>
-                    <p>Please check back during the appropriate hours:</p>
-                    <ul>
-                      <li><strong>Breakfast:</strong> 5:00 AM - 11:00 AM</li>
-                      <li><strong>Lunch:</strong> 11:00 AM - 5:00 PM</li>
-                      <li><strong>Dinner:</strong> 5:00 PM - 5:00 AM</li>
-                    </ul>
+                
+                {availableCategories.includes(category.id) ? (
+                  <div className="order-items-grid">
+                    {daySpecificMenu[category.id] && daySpecificMenu[category.id].length > 0 ? (
+                      daySpecificMenu[category.id].map((item) => {
+                        const cartItem = cart.find(cartItem => cartItem.id === item.id);
+                        const quantity = cartItem ? cartItem.quantity : 0;
+                        
+                        return (
+                          <div className="order-item" key={item.id}>
+                            <div className="order-item-img-container">
+                            <img
+  src={item.img.startsWith('http') ? item.img : `/img/menu/${item.img}`}
+  className="order-img"
+  alt={item.name}
+/>
+                              <div className="order-item-overlay">
+                                {/* <button className="view-details-button">
+                                  <i className="bi bi-eye"></i>
+                                </button> */}
+                              </div>
+                            </div>
+                            <div className="order-item-info">
+                              <h4>{item.name}</h4>
+                              <p className="ingredients">{item.description}</p>
+                              <p className="price">₹{item.price}</p>
+                              
+                              <div className="order-actions">
+                                {quantity > 0 ? (
+                                  <div className="quantity-selector">
+                                    <button
+                                      onClick={() => handleQuantityChange(item.id, 'subtract')}
+                                      className="quantity-btn"
+                                    >
+                                      <AiOutlineMinus style={{ color: 'black' }} />
+                                    </button>
+                                    <span className="quantity">{quantity}</span>
+                                    <button
+                                      onClick={() => handleQuantityChange(item.id, 'add')}
+                                      className="quantity-btn"
+                                    >
+                                      <AiOutlinePlus style={{ color: 'black' }} />
+                                    </button>
+                                  </div>
+                                ) : (
+                                  <button className="add-to-cart-button" onClick={() => addToCart(item)}>
+                                    <i className="bi bi-cart-plus"></i> Add to Cart
+                                  </button>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                        );
+                      })
+                    ) : (
+                      <div className="no-items-message">
+                        <p>No special menu items available for {currentDayOfWeek} in this category.</p>
+                      </div>
+                    )}
                   </div>
-                </div>
-              )}
-            </div>
-          ))}
+                ) : (
+                  <div className="locked-menu-content">
+                    <div className="locked-menu-message">
+                      <i className="bi bi-lock-fill"></i>
+                      <h3>This menu is currently unavailable</h3>
+                      <p>Please check back during the appropriate hours:</p>
+                      <ul>
+                        <li><strong>Breakfast:</strong> 5:00 AM - 11:00 AM</li>
+                        <li><strong>Lunch:</strong> 11:00 AM - 5:00 PM</li>
+                        <li><strong>Dinner:</strong> 5:00 PM - 5:00 AM</li>
+                      </ul>
+                    </div>
+                  </div>
+                )}
+              </div>
+            ))
+          )}
         </div>
       </div>
     </div>

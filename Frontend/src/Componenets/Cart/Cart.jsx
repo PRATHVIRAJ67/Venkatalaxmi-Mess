@@ -514,7 +514,11 @@ const CartPage = () => {
                 <div className="cart-item-row" key={item.id}>
                   <div className="item-col">
                     <div className="item-info">
-                      <img src={`/img/menu/${item.img}`} alt={item.name} className="item-image" />
+                    <img 
+  src={item.img && item.img.startsWith('http') ? item.img : `/img/menu/${item.img}`} 
+  alt={item.name} 
+  className="item-image"
+/>
                       <div className="item-details">
                         <h4>{item.name}</h4>
                         <p className="item-description">{item.description}</p>
