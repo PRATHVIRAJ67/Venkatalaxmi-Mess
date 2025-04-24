@@ -3,7 +3,7 @@ import './ChatWindow.css';
 
 // Only one welcome message for the initial state
 const INITIAL_MESSAGES = [
-  { id: 1, text: "👋 Hi there! I'm Lemon AI Assistant. How can I help you today?", isUser: false }
+  { id: 1, text: "👋 Hello I am Venkatatalkshmi Chat bot how can i Help U  ", isUser: false }
 ];
 
 const ChatWindow = () => {
