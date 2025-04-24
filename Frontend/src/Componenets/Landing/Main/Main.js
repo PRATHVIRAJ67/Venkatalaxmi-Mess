@@ -2,6 +2,7 @@ import React, { useEffect } from 'react';
 import './Main.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import '@fortawesome/fontawesome-free/css/all.min.css';
+import { Link } from "react-router-dom";
 
 const Main = () => {
   // Function to handle video lightbox
@@ -39,7 +40,8 @@ const Main = () => {
                 We are a team of talented chefs creating memorable dining experiences with the freshest ingredients
               </p>
               <div className="hero-buttons animate-element" data-aos="fade-up" data-aos-delay="200">
-                <a href="#menu" className="btn-get-started">Book Now</a>
+              <Link to="/order" className="btn-get-started">Book Now</Link>
+
                 <a 
                 
                 >

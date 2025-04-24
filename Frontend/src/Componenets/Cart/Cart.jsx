@@ -190,11 +190,12 @@ const CartPage = () => {
     navigate('/order');
   };
   
-  
-const clearCart = () => {
-  setCart([]);
-  localStorage.removeItem('cart');
-};
+  const clearCart = () => {
+    if (window.confirm('Are you sure you want to clear your cart?')) {
+      setCart([]);
+      localStorage.removeItem('cart');
+    }
+  };
 
   // Modified to accept direct formData parameter
   const createRazorpayOrder = async (formDataParam) => {
