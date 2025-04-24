@@ -241,7 +241,7 @@ const CartPage = () => {
       };
       
       // Call backend API to create order
-      const response = await fetch('http://localhost:5000/api/create-order', {
+      const response = await fetch('https://food-delivery-backend-c90g.onrender.com/api/create-order', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -364,7 +364,7 @@ const CartPage = () => {
       }
       
       // Send payment details to backend for verification
-      const response = await fetch('http://localhost:5000/api/verify-payment', {
+      const response = await fetch('https://food-delivery-backend-c90g.onrender.com/api/verify-payment', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

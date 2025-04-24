@@ -38,7 +38,7 @@ const ChatWindow = () => {
 
     try {
       // Send POST request to your backend API
-      const response = await fetch('http://localhost:5000/api/chat', {
+      const response = await fetch('https://food-delivery-backend-c90g.onrender.com/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ message: messageToSend })
