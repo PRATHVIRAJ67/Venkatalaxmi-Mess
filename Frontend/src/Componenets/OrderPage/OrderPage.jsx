@@ -7,8 +7,9 @@ import { faLock } from '@fortawesome/free-solid-svg-icons';
 import { createClient } from '@supabase/supabase-js';
 
 // Initialize Supabase client - replace with your actual URL and anon key
-const supabaseUrl = 'https://azzfgtymixbbseinydfo.supabase.co';
-const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImF6emZndHltaXhiYnNlaW55ZGZvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDUzODY4NzgsImV4cCI6MjA2MDk2Mjg3OH0.klA9RjID-wT3FIrFaU1VLfhHl0RVKXg7CX3lcoIWf08';
+
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+const supabaseKey = import.meta.env.VITE_SUPABASE_KEY;
 const supabase = createClient(supabaseUrl, supabaseKey);
 
 const OrderPage = () => {
